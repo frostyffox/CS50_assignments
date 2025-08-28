@@ -1,0 +1,1 @@
+print(str(input("Write something ")).lower())

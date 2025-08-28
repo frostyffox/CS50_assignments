@@ -1,0 +1,3 @@
+#goal: replacing every space in a string with ...
+
+print(input("Tell me something ").replace(" ","..."))
