@@ -1,10 +1,17 @@
 import random
 
 def main():
-    print("Final project for CS50 by Giulia Di Rocco")
+    print("\n" + "="*40)
+    print("Final project for CS50 by Giulia Di Rocco".center(40,"="))
+    print("="*40)
+
+    #running the app dashboard
     while True:
         try:
-            choice = input("\n\nWelcome to your dashboard. \nPlease coose an app:\n1. Tetris\n2. Finance Manager\n3. Draw\nCtrl-D to terminate\n")
+            choice = input("\n\nWelcome to your dashboard\n"
+                           "Please coose an app:\n"
+                           "1. Tetris\n2. Finance Manager\n3. Draw\n"
+                           "Ctrl-D to terminate\n").strip().lower()
         except EOFError:
             print("\Goodbye!")
             break
@@ -15,64 +22,181 @@ def main():
             finance()
         elif choice == "3":
             draw()
+        elif choice in ["q", "quit", "exit"]: #should not happen but for safety
+            print("\Goodbye!")
+            break
         else:
             print("Invalid choice.")
 
 
 #1: MINI TETRIS-LIKE GAME
-def playTetris():
-    width, height = 10, 5
-    board = [[" " for _ in range(width)] for _ in range(height)]
-    print("\nStarting Mini Tetris (Ctrl-D to exit)\n")
 
-    current_block = {"x": width // 2, "y": 0, "char": "█"}
+
+
+BLOCKS =[ #storing all my possible block shapes: composed by 1 to 3 blocks
+    ["█"],            # 1x1
+
+    ["██"],           # 2x1
+
+    ["█","█"],        # 1x2
+
+    ["███"],          # 3x1
+
+    ["█","█","█"],    # 1x3
+
+    ["██"," █"],      # L-shape
+
+    ["██","█ "],       #j shape
+
+    [" █","██"]       # mirrored L
+]
+
+FILLED = "█"
+EMPTY = " "
+
+#return the measurements of the shape
+def shape_size(shape):
+    h = len(shape)
+    w = max(len(r) for r in shape)
+    return h,w 
+
+
+def new_block(width):
+    shape = random.choice(BLOCKS)
+    h,w = shape_size(shape)
+    x = width // 2 - w //2
+    y = 0
+    return {"shape": shape, "x": x, "y": y}
+
+def placement(board, shape, x, y):
+    #makes shure every block can be placed with no collision
+    height = len(board)
+    width = len(board[0])
+    for r, row in enumerate(shape):
+        for c, col in enumerate(row):
+            if col == EMPTY:
+                continue
+            bx, by = x + c , y + r
+            if bx < 0 or bx >= width or by < 0  or by >= height:
+                return False
+            if board[by][bx] != EMPTY:
+                return False
+    return True
+
+def lock_block(board, block):
+    shape, x, y = block["shape"], block["x"], block["y"]
+    for r, row in enumerate(shape):
+        for c, col in enumerate(row):
+            if col != EMPTY:
+                board[y + r][x + c] = FILLED
+
+def drop(board, block):
+    x = block["x"]
+    y = block["y"]
+    shape = block["shape"]
+
+    while placement(board, shape, x, y+1): #make sure y range is valid
+        y +=1
+    block["y"] = y
+
+
+def print_board(board, block):
+    width = len(board[0])
+    height = len(board)
+
+    print("\n" + "-" * (width+2))
+    for y in range(height):
+        row = list(board[y])
+
+        #when block intersect another, overlay
+        bl_top = block["y"]
+        bl_bottom = block["y"] + len(block["shape"]) - 1
+        if bl_top <= y <= bl_bottom:
+            bl_idx = y - bl_top
+            block_row = block["shape"][bl_idx]
+            for dx, cl in enumerate(block_row):
+                if cl != EMPTY:
+                    blx = block["x"] + dx
+                    if 0 <= blx < width:
+                        row[blx] = cl #overlay for now
+        print("|" + "".join(row)+ "|")
+    print("-" * (width + 2))
+
+def move(board, block, direction):
+    x,y = block["x"], block["y"]
+    shape = block["shape"]
+    if direction == "l":
+        nx, ny = x-1, y
+    elif direction == "r":
+        nx, ny = x+1, y
+    elif direction == "d":
+        nx, ny = x,y+1
+    else:
+        return block
+    
+    if placement(board, shape, nx,ny):
+        block["x"], block["y"] = nx, ny
+    return block
+
+def playTetris():
+    width, height = 10, 12 #init empty board
+    board = [[EMPTY for _ in range(width)] for _ in range(height)]
+
+    print("\n"+ "=" * 40)
+    print("\nPlay Mini Tetris (Ctrl-D to exit)\n")
+    print("Move to left(l), right(r) or down(d). \nPress 'q' to quit".center(40))
+
+    current_block = new_block(width)
+    if not placement(board, current_block["shape"], current_block["x"], current_block["y"]):
+        print("Game over")
+        return
+    
+    tot_moves = 0
 
     while True:
         print_board(board, current_block)
         try:
-            move = input("Move block: left(l), right(r), down(d), quit(q): ").strip()
+            command = input("Move (l, r, d), quit(q): ").strip().lower()
         except EOFError:
             print("\nExiting Tetris...")
             break
 
-        if move == "q":
+        if command == "q":
             break
-        elif move in ["l", "r", "d"]:
-            current_block = move_block(board, current_block, move)
-            if current_block["y"] >= height - 1:
-                # Lock block
-                board[current_block["y"]][current_block["x"]] = current_block["char"]
-                current_block = {"x": width // 2, "y": 0, "char": "█"}  # spawn new block
+
+        elif command in ["l", "r", "d"]:
+            before = (current_block["x"], current_block["y"])
+            current_block = move(board, current_block, command)
+            after = (current_block["x"], current_block["y"])
+
+            if after != before:
+                tot_moves +=1
         else:
-            print("Invalid input. Use l, r, d, or q.")
+            print("Use a valid command")
+            continue
 
+        if command == "d" and not placement(board, current_block["shape"], 
+                                            current_block["x"], current_block["y"] +1):
+            lock_block(board, current_block)
+            current_block = new_block(width)
+            tot_moves = 0
+            if not placement(board, current_block["shape"], current_block["x"], current_block["y"]):
+                print_board(board, current_block)
+                print("Game over!")
+                break
+            continue
 
-def print_board(board, block):
-    for y in range(len(board)):
-        row = ""
-        for x in range(len(board[0])):
-            if y == block["y"] and x == block["x"]:
-                row += block["char"]
-            else:
-                row += board[y][x]
-        print("|" + row + "|")
-    print("-" * (len(board[0]) + 2))
+        if tot_moves >=3: #change block
+            drop(board, current_block)
+            lock_block(board, current_block)
 
-
-def move_block(board, block, direction):
-    width = len(board[0])
-    height = len(board)
-    x, y = block["x"], block["y"]
-
-    if direction == "l" and x > 0 and board[y][x-1] == " ":
-        x -= 1
-    elif direction == "r" and x < width - 1 and board[y][x+1] == " ":
-        x += 1
-    elif direction == "d" and y < height - 1 and board[y+1][x] == " ":
-        y += 1
-
-    return {"x": x, "y": y, "char": block["char"]}
-
+            current_block = new_block(width)
+            tot_moves = 0
+            if not placement(board, current_block["shape"], current_block["x"], current_block["y"]):
+                print_board(board, current_block)
+                print("Game over")
+                break
+            
 #2: FINANCIAL MANAGER
 #input: amount ($) -> monthly income; condition("status"): student/worker/retired
 #returns a suggested partition of the monthly income, both in % and $

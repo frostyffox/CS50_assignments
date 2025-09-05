@@ -22,4 +22,4 @@ APPS
 
     *******RECURSIVE DRAW
     the user is prompted to choose a symbol between ".", "*", "_" and a number between 1 and 10.
-    the program draws a pattern using recursion, where the number is the height and the symbol the basic unit of the pattern    
+    the program draws a pattern using recursion, where the number is the height and the symbol the basic unit of the pattern   
