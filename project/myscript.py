@@ -1,5 +1,9 @@
 import random
 
+
+#______MAIN______
+# runs the main dashboard
+
 def main():
     print("\n" + "="*40)
     print("Final project for CS50 by Giulia Di Rocco".center(40,"="))
@@ -32,7 +36,6 @@ def main():
 #1: MINI TETRIS-LIKE GAME
 
 
-
 BLOCKS =[ #storing all my possible block shapes: composed by 1 to 3 blocks
     ["█"],            # 1x1
 
@@ -51,8 +54,8 @@ BLOCKS =[ #storing all my possible block shapes: composed by 1 to 3 blocks
     [" █","██"]       # mirrored L
 ]
 
-FILLED = "█"
-EMPTY = " "
+filled = "█"
+empty = " "
 
 #return the measurements of the shape
 def shape_size(shape):
@@ -68,18 +71,21 @@ def new_block(width):
     y = 0
     return {"shape": shape, "x": x, "y": y}
 
+
 def placement(board, shape, x, y):
     #makes shure every block can be placed with no collision
     height = len(board)
     width = len(board[0])
     for r, row in enumerate(shape):
         for c, col in enumerate(row):
-            if col == EMPTY:
+            if col == empty:
                 continue
+
+
             bx, by = x + c , y + r
             if bx < 0 or bx >= width or by < 0  or by >= height:
                 return False
-            if board[by][bx] != EMPTY:
+            if board[by][bx] != empty:
                 return False
     return True
 
@@ -87,8 +93,8 @@ def lock_block(board, block):
     shape, x, y = block["shape"], block["x"], block["y"]
     for r, row in enumerate(shape):
         for c, col in enumerate(row):
-            if col != EMPTY:
-                board[y + r][x + c] = FILLED
+            if col != empty:
+                board[y + r][x + c] = filled
 
 def drop(board, block):
     x = block["x"]
@@ -100,6 +106,9 @@ def drop(board, block):
     block["y"] = y
 
 
+#visualisation of the board with "updated moves"
+#board is a list of rows
+#each row is a list of characters
 def print_board(board, block):
     width = len(board[0])
     height = len(board)
@@ -115,13 +124,14 @@ def print_board(board, block):
             bl_idx = y - bl_top
             block_row = block["shape"][bl_idx]
             for dx, cl in enumerate(block_row):
-                if cl != EMPTY:
+                if cl != empty:
                     blx = block["x"] + dx
                     if 0 <= blx < width:
                         row[blx] = cl #overlay for now
         print("|" + "".join(row)+ "|")
     print("-" * (width + 2))
 
+# the user moves the block
 def move(board, block, direction):
     x,y = block["x"], block["y"]
     shape = block["shape"]
@@ -138,9 +148,10 @@ def move(board, block, direction):
         block["x"], block["y"] = nx, ny
     return block
 
+#runs the whole game
 def playTetris():
-    width, height = 10, 12 #init empty board
-    board = [[EMPTY for _ in range(width)] for _ in range(height)]
+    width, height = 5, 4 #init empty board
+    board = [[empty for _ in range(width)] for _ in range(height)]
 
     print("\n"+ "=" * 40)
     print("\nPlay Mini Tetris (Ctrl-D to exit)\n")
@@ -254,28 +265,63 @@ def print_budget(budget):
 
 
 #3: DRAWING A PATTERN GIVEN A SYMBOL AND A NUMBER, USING RECURSION
-def draw():
-    symbol = input("Choose a symbol: . or _ or *\n").strip()
-    if symbol not in [".", "_", "*"]:
-        print("Invalid symbol")
-        return
-    try:
-        n = int(input("Enter pattern size: (between 1 and 10):\n"))
-    except ValueError:
-        print("Invalid height")
-        return
-    if n < 1 or n> 10:
-        print("Pick a nub=mber between 1 and 10")
-        return
-    print("\Pattern: \n")
-    rec_draw(symbol, n)
 
-#DRAWS A PATTERN GIVEN A SIMBOL AND A SIZE(int between 1 and 10 incl.)
-def rec_draw(symbol, n):
-    if n == 0:
+#if the symbol or the pattern size aentered are not valid > re-prompt
+#after the pattern has been correctly drawn: go back to main menu
+def draw():
+    while True:
+        symbol = input("Choose a symbol: . or _ or *\n").strip()
+        if symbol not in [".", "_", "*"]:
+            print("Invalid symbol")
+            continue
+        break
+
+    while True:
+        try:
+            #i choose a range of n so that the drawing looks good enough
+            n = int(input("Enter pattern size (between 7 and 16 -included-):\n"))
+        except ValueError:
+            print("Invalid height")
+            continue
+        if n < 7 or n> 16:
+            print("Pick a nubmber between 7 and 16")
+            continue
+        break
+    print("\Pattern: \n")
+    if n%2 == 1:
+        rec_odd(symbol,n)
+    else:
+        rec_square(symbol,n)
+
+    
+
+#DRAWS A PATTERN GIVEN A SIMBOL AND A SIZE
+
+#for odd numbers, i draw a pyramid of n lines
+#ex: 7
+#half = 4
+#if l> 7: return
+#if l>4 -> second part of the pyramid
+#if l<= 4: -> first part of the pyramid
+def rec_odd(symbol, n, l=1):
+    if l > n:
         return
-    print(symbol*n)
-    rec_draw(symbol, n-1)
+    half = (n + 1) // 2  # middle line
+    if l <= half:
+        count = l
+    else:
+        count = n - l + 1
+    print(symbol * count)
+    rec_odd(symbol, n, l + 1) #implement the recursion here, modifying l value to go on in the lines
+
+
+#for even numbers, i draw a square
+def rec_square(symbol, n):
+    
+    for _ in range(n):
+        print((symbol+" ")*n)
+    
+
 
 
 #MAIN CTRL
