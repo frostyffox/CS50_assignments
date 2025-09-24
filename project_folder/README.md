@@ -21,5 +21,16 @@ APPS
     if the amount is quite low or high, there are further adjustments to make sure basic needs are met and to avoid excessive amounts allocated in a category.
 
     *******RECURSIVE DRAW
-    the user is prompted to choose a symbol between ".", "*", "_" and a number between 1 and 10.
-    the program draws a pattern using recursion, where the number is the height and the symbol the basic unit of the pattern   
+    the user is prompted to choose a symbol between ".", "*", "_" and a number between 7 and 16.
+    for odd numbers, the program draws a pattern using recursion, where the number is the height and the symbol the basic unit of the pattern. the pattern is a pyramid where the middle line is the longest
+    ex: n = 7
+    out:
+    1: *
+    2: **
+    3: ***
+    4: ****
+    5: ***
+    6: **
+    7: *
+
+    if the chosen number is even, the program will output a square size n x n

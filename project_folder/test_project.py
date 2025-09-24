@@ -4,7 +4,7 @@
 
 import sys
 import pytest
-import myscript as ms
+import project as ms
 
 def test_shape_size():
     shape = ["██", "█ "]

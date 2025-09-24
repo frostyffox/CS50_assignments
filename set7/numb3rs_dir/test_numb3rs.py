@@ -1,4 +1,4 @@
-from assignments.L8_regex.numb3rs_dir.numb3rs import validate
+from numb3rs import validate
 import pytest
 
 #test individual function

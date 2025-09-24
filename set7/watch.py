@@ -1,13 +1,11 @@
 #for cs50 submission: file name = watch.py
-# 
-# 
+#
+#
 # #embed link -> html lines
 #iframe: html element
 #src: html attribute with value "https://www.youtube.com/embed/xvFZjo5PgG0"
 
 #example of minimal html: <iframe src="https://www.youtube.com/embed/xvFZjo5PgG0"></iframe>
-
-#TODO:
 # extract the urls from the html codes
 # sub youtube > youtu.be
 #rm /embed
@@ -35,9 +33,19 @@ def parse(s):
     # don't include /embed in the substitution
     #out: "https://ww.youtube.com/embed/########"
 
-    final = re.sub(r'^.*?src="https?://(www\.)?youtube\.com/embed/', 'https://youtu.be/', s )
-    return final
+    pattern = r'<iframe[^>]*\s+src="https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]+)"'
+    match = re.search(pattern,s)
+
+    if match:
+        id = match.group(1)
+        return f"https://youtu.be/{id}"
+    else:
+        return None
+
+    #final = re.sub(r'^.*?src="https?://(www\.)?youtube\.com/embed/', 'https://youtu.be/', s )
+    #return final
 
 if __name__ == "__main__":
     main()
+
 

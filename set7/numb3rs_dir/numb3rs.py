@@ -18,7 +18,7 @@ import sys
 def validate(ip):
     pattern = (r"^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}"
     r"(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$")
-    
+
     match = re.search(pattern, ip)
     if match:
         return True
@@ -30,3 +30,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
